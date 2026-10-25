@@ -16,8 +16,8 @@ class LandingPageController extends Controller
         )
         ->whereNotNull('latitude')
         ->whereNotNull('longitude')
-        ->where('latitude', '!=', '') // Menghindari string kosong
-        ->where('longitude', '!=', '') // Menghindari string kosong
+        ->where('latitude', '!=', '') 
+        ->where('longitude', '!=', '') 
         ->whereNotNull('kecamatan')
         ->groupBy('kecamatan')
         ->get();

@@ -312,7 +312,7 @@
             <div class="avatar-container">
                 <div class="avatar-wrapper">
                     @if($user->foto)
-                        <img id="avatarPreview" src="{{ asset('foto-profile/' . $user->foto) }}" class="avatar-frame">
+                        <img id="avatarPreview" src="{{ asset('storage/foto-profil/' . $user->foto) }}" class="avatar-frame">
                     @else
                         <div id="avatarFallback" class="avatar-default">
                             {{ strtoupper(substr($mahasiswa->nama ?? 'M', 0, 1)) }}

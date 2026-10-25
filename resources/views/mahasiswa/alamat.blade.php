@@ -213,61 +213,63 @@
                 <span id="gpsBadge" class="al-badge manual"><span class="al-badge-dot"></span> Memuat...</span>
             </div>
 
-            <form action="/alamat" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
-                @csrf
+         <style>
+    .error-text { color: #dc3545; font-size: 10px; margin-top: 4px; display: block; }
+    .form-control.is-invalid { border-color: #dc3545; }
+</style>
 
-                <div class="form-group">
-                    <label>Provinsi</label>
-                    <select name="provinsi" id="provinsi" class="form-control">
-                        <option value="">Pilih Provinsi</option>
-                        @foreach($provinces as $province)
-                            <option value="{{ $province->code }}" {{ ($alamat && $alamat->provinsi == $province->code) ? 'selected' : '' }}>
-                                {{ $province->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+<form action="/alamat" method="POST" style="display: flex; flex-direction: column; gap: 4px;">
+    @csrf
 
-                <div class="form-group">
-                    <label>Kabupaten / Kota</label>
-                    <select name="kabupaten" id="kabupaten" class="form-control">
-                        <option value="">Pilih Kabupaten</option>
-                        {{-- Akan diisi via AJAX jika mode edit --}}
-                    </select>
-                </div>
+    <div class="form-group">
+        <label>Provinsi</label>
+        <select name="provinsi" id="provinsi" class="form-control @error('provinsi') is-invalid @enderror" required>
+            <option value="">Pilih Provinsi</option>
+            @foreach($provinces as $province)
+                <option value="{{ $province->code }}" {{ (old('provinsi', $alamat->provinsi ?? '') == $province->code) ? 'selected' : '' }}>
+                    {{ $province->name }}
+                </option>
+            @endforeach
+        </select>
+        @error('provinsi') <span class="error-text">{{ $message }}</span> @enderror
+    </div>
 
-                <div class="form-group">
-                    <label>Kecamatan</label>
-                    <select name="kecamatan" id="kecamatan" class="form-control">
-                        <option value="">Pilih Kecamatan</option>
-                    </select>
-                </div>
+    <div class="form-group">
+        <label>Kabupaten / Kota</label>
+        <select name="kabupaten" id="kabupaten" class="form-control @error('kabupaten') is-invalid @enderror" required>
+            <option value="">Pilih Kabupaten</option>
+            {{-- Isi via AJAX tetap jalan --}}
+        </select>
+        @error('kabupaten') <span class="error-text">{{ $message }}</span> @enderror
+    </div>
 
-                <div class="form-group">
-                    <label>Desa / Kelurahan</label>
-                    <select name="desa" id="desa" class="form-control">
-                        <option value="">Pilih Desa</option>
-                    </select>
-                </div>
+    <div class="form-group">
+        <label>Kecamatan</label>
+        <select name="kecamatan" id="kecamatan" class="form-control @error('kecamatan') is-invalid @enderror" required>
+            <option value="">Pilih Kecamatan</option>
+        </select>
+        @error('kecamatan') <span class="error-text">{{ $message }}</span> @enderror
+    </div>
 
-                <div class="form-group" style="position: relative;">
-                    <label>Cari Jalan / Lokasi Sekitar</label>
-                    <input type="text" id="search-location" placeholder="Ketik nama jalan tempat tinggal..." class="form-control" autocomplete="off">
-                </div>
+    <div class="form-group">
+        <label>Desa / Kelurahan</label>
+        <select name="desa" id="desa" class="form-control @error('desa') is-invalid @enderror" required>
+            <option value="">Pilih Desa</option>
+        </select>
+        @error('desa') <span class="error-text">{{ $message }}</span> @enderror
+    </div>
 
-                <div class="form-group">
-                    <label>Detail Alamat / Catatan Rumah</label>
-                    <textarea name="detail_alamat" id="detail_alamat" rows="3" class="form-control" placeholder="Nama jalan, nomor rumah, RT/RW, atau patokan objek terdekat">{{ $alamat->detail_alamat ?? '' }}</textarea>
-                </div>
+    <div class="form-group">
+        <label>Detail Alamat</label>
+        <textarea name="detail_alamat" id="detail_alamat" rows="3" class="form-control @error('detail_alamat') is-invalid @enderror" required>{{ old('detail_alamat', $alamat->detail_alamat ?? '') }}</textarea>
+        @error('detail_alamat') <span class="error-text">{{ $message }}</span> @enderror
+    </div>
 
-                {{-- Hidden Fields untuk Spasial --}}
-                <input type="hidden" name="latitude" id="latitude" value="{{ $alamat->latitude ?? '' }}">
-                <input type="hidden" name="longitude" id="longitude" value="{{ $alamat->longitude ?? '' }}">
+    <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $alamat->latitude ?? '') }}" required>
+    <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $alamat->longitude ?? '') }}" required>
 
-                <button type="submit" class="btn-primary" style="margin-top: 10px;">
-                    {{ $alamat ? 'Perbarui Alamat Terdaftar' : 'Simpan Koordinat Alamat' }}
-                </button>
-            </form>
+    <button type="submit" class="btn-primary">Simpan</button>
+</form>
 
             {{-- TOMBOL DELETE / RESET DATA JIKA DATA ADA --}}
             @if($alamat)
@@ -288,6 +290,12 @@
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <p class="al-title" style="margin-bottom: 0;">Peta Titik Hunian</p>
                 <button type="button" id="btn-location" class="btn-outline">🎯 Deteksi GPS Saya</button>
+            </div>
+
+             <div style="background: #f9fafb; padding: 10px; border-radius: 4px; border: 1px dashed #d1d5db;">
+                <p style="font-size: 11px; color: #4b5563; margin: 0; line-height: 1.4;">
+                    <strong>Petunjuk:</strong> Setelah klik <em>Deteksi GPS</em> atau klik titik pada peta, harap lengkapi/sesuaikan data <strong>Provinsi, Kabupaten, Kecamatan, dan Desa</strong> di formulir samping agar data tersimpan dengan valid.
+                </p>
             </div>
             
             <div id="map"></div>
@@ -400,8 +408,9 @@
                 targetZoom = 17;
                 isDesaLevel = true;
             } else if (kecamatan) {
-                queries.push({ query: `Kecamatan ${kecamatan}, ${kabupaten}, ${provinsi}, Indonesia` });
-                targetZoom = 14;
+            queries.push({ query: `Kecamatan ${kecamatan}, ${kabupaten}, ${provinsi}, Indonesia` });
+            queries.push({ query: `${kecamatan}, ${kabupaten}, Indonesia` });  // ✅ Fallback query
+            targetZoom = 15;  // ✅ Zoom lebih dekat
             } else {
                 queries.push({ query: `${kabupaten}, ${provinsi}, Indonesia` });
                 targetZoom = 12;
@@ -426,10 +435,20 @@
             await loadKabupaten(initialProv, "{{ $alamat->kabupaten ?? '' }}");
         }
 
+        // document.getElementById('provinsi').addEventListener('change', function() { loadKabupaten(this.value); });
+        // document.getElementById('kabupaten').addEventListener('change', function() { loadKecamatan(this.value); });
+        // document.getElementById('kecamatan').addEventListener('change', function() { loadDesa(this.value); });
+        // document.getElementById('desa').addEventListener('change', zoomToWilayah);
+
+
+        // Cukup memuat data saja, tanpa memicu zoom otomatis
         document.getElementById('provinsi').addEventListener('change', function() { loadKabupaten(this.value); });
         document.getElementById('kabupaten').addEventListener('change', function() { loadKecamatan(this.value); });
-        document.getElementById('kecamatan').addEventListener('change', function() { loadDesa(this.value); });
-        document.getElementById('desa').addEventListener('change', zoomToWilayah);
+        document.getElementById('kecamatan').addEventListener('change', async function() { 
+        await loadDesa(this.value);
+        await zoomToWilayah();  // ✅ SEKARANG ZOOM KE KECAMATAN
+});
+        // Baris untuk 'desa' di atas saya hapus agar tidak memicu zoom tiap ganti desa
 
         async function loadKabupaten(provCode, selectedCode = '') {
             if(!provCode) return;

@@ -17,7 +17,6 @@ class SekolahController extends Controller
         $user = Auth::user();
         $provinces = Province::all();
 
-        // Ambil data sekolah khusus milik user yang sedang login (Single-row per student)
         $sekolah = Sekolah::where('user_id', Auth::id())->first();
 
         $mahasiswa = DB::table('mahasiswa')
@@ -36,13 +35,11 @@ class SekolahController extends Controller
             'kecamatan' => 'required',
         ]);
 
-        // Mengambil Teks Nama Asli Wilayah berdasarkan Code Laravolt agar Nominatim Map bisa melacak teks string-nya
         $provName = Province::where('code', $request->provinsi)->first()?->name ?? $request->provinsi;
         $kabName  = City::where('code', $request->kabupaten)->first()?->name ?? $request->kabupaten;
-        // Jika request kecamatan berupa code, cari namanya. Jika sudah string name, gunakan langsung.
         $kecName  = District::where('code', $request->kecamatan)->first()?->name ?? $request->kecamatan;
 
-        // Menggunakan updateOrCreate agar per user hanya memiliki satu data sekolah asal
+        
         Sekolah::updateOrCreate(
             ['user_id' => Auth::id()],
             [
@@ -58,7 +55,6 @@ class SekolahController extends Controller
 
     public function destroy($id)
     {
-        // Pastikan hanya bisa menghapus data miliknya sendiri
         $sekolah = Sekolah::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $sekolah->delete();
 

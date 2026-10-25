@@ -23,25 +23,24 @@ class ProfileMahasiswaController extends Controller
     {
         $user = auth()->user();
 
-        // ── JALUR 1: JIKA TOMBOL GANTI PASSWORD DI MODAL YANG DITEKAN ──
         if ($request->input('action_type') === 'update_password') {
             
             $request->validate([
                 'old_password' => 'required',
-                'password'     => 'required|min:8', // Sesuaikan min karakter sesukamu (misal 8)
+                'password'     => 'required|min:8', 
             ], [
                 'old_password.required' => 'Password lama wajib diisi.',
                 'password.required'     => 'Password baru wajib diisi.',
                 'password.min'          => 'Password baru minimal harus 8 karakter.',
             ]);
 
-            // VALIDASI UTAMA: Cek password lama cocok gak dengan di database
+            
             if (!Hash::check($request->old_password, $user->password)) {
-                // Jika salah, gagalkan proses dan balikkan pesan error ke modal
+                
                 return redirect()->back()->withErrors(['old_password' => 'Gagal! Password lama yang Anda masukkan salah.']);
             }
 
-            // Jika benar, update password di table users
+            
             DB::table('users')
                 ->where('id', $user->id)
                 ->update([
@@ -51,7 +50,7 @@ class ProfileMahasiswaController extends Controller
             return redirect()->back()->with('success', 'Password akun berhasil diperbarui!');
         }
 
-        // ── JALUR 2: JIKA TOMBOL SIMPAN DATA UTAMA PROFIL YANG DITEKAN ──
+    
         if ($request->input('action_type') === 'update_profile') {
             
             $request->validate([
@@ -69,21 +68,22 @@ class ProfileMahasiswaController extends Controller
                 'no_telp' => $request->no_telp,
             ];
 
-            // Proses Upload Foto
+            
             if ($request->hasFile('foto')) {
                 $foto = $request->file('foto');
                 $namaFoto = time() . '_' . $foto->getClientOriginalName();
-                $foto->move(public_path('foto-profile'), $namaFoto);
-                $data['foto'] = $namaFoto;
+                $path = $foto->store('foto-profil', 'public');
+                $data['foto'] = basename($path);
             }
 
-            // Jalankan update ke database
+            
             DB::table('users')
                 ->where('id', $user->id)
                 ->update($data);
 
             return redirect()->back()->with('success', 'Profile berhasil diperbarui');
         }
+        
 
         return redirect()->back();
     }

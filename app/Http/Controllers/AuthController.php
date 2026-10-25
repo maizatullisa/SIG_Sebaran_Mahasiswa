@@ -25,9 +25,10 @@ class AuthController extends Controller
     if (!$mahasiswa) {
         return back()->with('error', 'NIM atau Nama tidak ditemukan!');
     }
-
     $user = User::create([
+        'name' => $mahasiswa->nama,
         'email' => $request->email,
+        'mahassiswa_id' => $mahasiswa->id,
         'role' => 'mahasiswa',
         'password' => Hash::make($request->password),
     ]);
